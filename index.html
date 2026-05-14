@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Max 训练">
+<meta name="theme-color" content="#0a0a0a">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<title>Max 训练 · v5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-2: #121212;
+    --surface: #161616;
+    --surface-2: #1d1d1d;
+    --border: #262626;
+    --border-strong: #3a3a3a;
+    --text: #ece9e2;
+    --text-dim: #9a958a;
+    --text-faint: #5d594f;
+    --accent: #ff7a1a;
+    --accent-dim: #b3551a;
+    --accent-faint: rgba(255, 122, 26, 0.12);
+    --danger: #e85a4a;
+    --warn: #f5a623;
+    --good: #7ab87a;
+    --muscle-active: #ff7a1a;
+    --muscle-secondary: #8a4419;
+    --muscle-inactive: #262626;
+    --muscle-stroke: #1a1a1a;
+    --display: 'Instrument Serif', 'Songti SC', 'STSong', serif;
+    --mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+    --body: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'HarmonyOS Sans SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--text); font-family: var(--body); margin: 0; padding: 0; overscroll-behavior-y: contain; }
+  body { padding-bottom: env(safe-area-inset-bottom); min-height: 100vh; -webkit-font-smoothing: antialiased; line-height: 1.5; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; padding: 0; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding-top: env(safe-area-inset-top);
+  }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 12px; }
+  .brand { display: flex; align-items: baseline; gap: 8px; }
+  .brand-title { font-family: var(--display); font-size: 26px; line-height: 1; font-style: italic; letter-spacing: -0.01em; }
+  .brand-meta { font-family: var(--mono); font-size: 10px; color: var(--text-faint); letter-spacing: 0.1em; }
+  .menu-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; transition: border-color 0.2s, background 0.2s; }
+  .menu-btn:active { background: var(--surface); border-color: var(--border-strong); }
+  .menu-btn svg { width: 16px; height: 16px; stroke: var(--text); }
+
+  .tabs { display: flex; overflow-x: auto; gap: 4px; padding: 0 18px 10px; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: 0 0 auto; padding: 9px 14px; border-radius: 999px; font-size: 13px; color: var(--text-dim); font-weight: 500; border: 1px solid transparent; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .tab .tab-key { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+  .tab[aria-selected="true"] { background: var(--text); color: var(--bg); }
+  .tab[aria-selected="true"] .tab-key { color: var(--bg); opacity: 0.6; }
+
+  .versions { display: flex; gap: 8px; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+  .version { flex: 1; padding: 8px 6px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; color: var(--text-dim); text-align: center; min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; transition: all 0.15s; }
+  .version[aria-selected="true"] { background: var(--accent-faint); border-color: var(--accent); color: var(--accent); }
+  .version .v-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; }
+  .version .v-name { font-weight: 500; font-size: 12px; }
+  .version[data-star="true"] .v-name::after { content: " ★"; color: var(--warn); font-size: 10px; }
+
+  main { padding: 0 18px 80px; }
+
+  .plan-summary { margin: 16px 0 8px; padding: 18px 18px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; position: relative; overflow: hidden; }
+  .plan-summary::before { content: ""; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, var(--accent-faint) 0%, transparent 70%); pointer-events: none; }
+  .plan-summary-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .plan-code { font-family: var(--mono); font-size: 13px; color: var(--accent); background: var(--accent-faint); padding: 3px 8px; border-radius: 4px; letter-spacing: 0.05em; }
+  .plan-title { font-family: var(--display); font-size: 28px; line-height: 1.1; margin: 6px 0 4px; }
+  .plan-subtitle { font-size: 13px; color: var(--text-dim); margin-bottom: 14px; line-height: 1.5; }
+  .plan-meta { display: flex; gap: 16px; font-family: var(--mono); font-size: 11px; color: var(--text-faint); letter-spacing: 0.05em; }
+  .plan-meta strong { color: var(--text); font-weight: 500; }
+
+  .section-head { display: flex; align-items: center; justify-content: space-between; margin: 22px 0 12px; padding: 0 2px; }
+  .section-head h3 { font-size: 11px; letter-spacing: 0.18em; color: var(--text-faint); margin: 0; font-weight: 600; text-transform: uppercase; }
+  .section-head .count { font-family: var(--mono); font-size: 10px; color: var(--text-faint); }
+
+  .ex-list { display: flex; flex-direction: column; gap: 10px; }
+  .ex { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color 0.15s; }
+  .ex.open { border-color: var(--border-strong); }
+  .ex-head { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; padding: 14px 14px 14px 16px; gap: 12px; }
+  .ex-num { font-family: var(--mono); font-size: 13px; color: var(--text-faint); font-weight: 500; }
+  .ex-name { font-size: 15px; font-weight: 500; color: var(--text); line-height: 1.3; }
+  .ex-name-en { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.03em; margin-top: 3px; line-height: 1.3; }
+  .ex-sets { font-family: var(--mono); font-size: 13px; color: var(--text); border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 8px; min-width: 62px; text-align: center; line-height: 1; font-weight: 500; background: var(--bg); }
+  .ex-sets .sets-num { color: var(--accent); }
+  .ex-sets .sets-mult { color: var(--text-faint); margin: 0 2px; }
+  .ex.starred .ex-name::after { content: " ★"; color: var(--warn); font-size: 11px; margin-left: 2px; }
+  .ex-body { display: none; border-top: 1px solid var(--border); padding: 14px 16px 18px; }
+  .ex.open .ex-body { display: block; }
+  .ex-note { font-size: 13px; color: var(--text-dim); line-height: 1.55; margin-bottom: 14px; }
+  .ex-note strong { color: var(--accent); font-weight: 500; }
+  .ex-tech { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+  .ex-tech-head { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; color: var(--text-faint); margin-bottom: 6px; text-transform: uppercase; }
+
+  .ex-row { display: grid; grid-template-columns: 1fr 100px; gap: 14px; align-items: center; }
+  .ex-actions { display: flex; flex-direction: column; gap: 6px; }
+  .ex-btn { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 8px; font-size: 12px; color: var(--text); transition: all 0.15s; justify-content: center; }
+  .ex-btn:active { background: var(--surface-2); }
+  .ex-btn svg { width: 12px; height: 12px; }
+  .ex-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 500; }
+  .ex-btn.primary:active { background: var(--accent-dim); }
+
+  .muscle-fig { width: 100px; height: 140px; display: flex; justify-content: center; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px; }
+  .muscle-fig svg { width: 100%; height: 100%; }
+  .muscle-fig svg path, .muscle-fig svg circle, .muscle-fig svg ellipse { fill: var(--muscle-inactive); stroke: var(--muscle-stroke); stroke-width: 0.5; transition: fill 0.3s; }
+  .muscle-fig svg [data-muscle].secondary { fill: var(--muscle-secondary); }
+  .muscle-fig svg [data-muscle].primary { fill: var(--muscle-active); }
+  .muscle-fig svg .outline { fill: var(--surface-2); stroke: var(--border); stroke-width: 0.6; }
+  .muscle-fig svg .head { fill: var(--surface-2); stroke: var(--border); stroke-width: 0.6; }
+  .muscle-fig-label { font-family: var(--mono); font-size: 9px; color: var(--text-faint); text-anchor: middle; }
+
+  .tips { margin-top: 22px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+  .tips h4 { font-size: 11px; letter-spacing: 0.18em; color: var(--text-faint); margin: 0 0 10px; text-transform: uppercase; font-weight: 600; }
+  .tips ul { margin: 0; padding-left: 18px; }
+  .tips li { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 4px; }
+  .tips li strong { color: var(--text); font-weight: 500; }
+  .tips.warn { border-color: rgba(245, 166, 35, 0.3); background: rgba(245, 166, 35, 0.05); }
+  .tips.warn h4 { color: var(--warn); }
+
+  .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(360px, 88vw); background: var(--bg-2); z-index: 100; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); border-left: 1px solid var(--border); overflow-y: auto; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 18px; border-bottom: 1px solid var(--border); }
+  .drawer-title { font-family: var(--display); font-size: 22px; }
+  .drawer-close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+  .drawer-close:active { background: var(--surface); }
+  .drawer-section { padding: 18px; border-bottom: 1px solid var(--border); }
+  .drawer-section:last-child { border-bottom: none; }
+  .drawer-section h3 { font-size: 10px; letter-spacing: 0.2em; color: var(--accent); margin: 0 0 12px; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .drawer-section h3 .badge { background: var(--accent-faint); color: var(--accent); padding: 2px 6px; border-radius: 3px; font-size: 9px; }
+  .drawer-section p, .drawer-section li { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+  .drawer-section ul { margin: 0; padding-left: 18px; }
+  .drawer-section ul li { margin-bottom: 4px; }
+  .drawer-section ul li strong { color: var(--text); font-weight: 500; }
+
+  .week { display: grid; grid-template-columns: 36px 1fr 60px; gap: 8px; font-size: 13px; align-items: center; }
+  .week-day { font-family: var(--mono); font-size: 11px; color: var(--text-faint); letter-spacing: 0.05em; }
+  .week-name { color: var(--text); padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .week-name.rest { color: var(--text-dim); }
+  .week-ver { text-align: right; font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .week-ver.dim { color: var(--text-faint); }
+
+  .nutri { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 13px; padding: 5px 0; }
+  .nutri-key { color: var(--text-dim); }
+  .nutri-val { font-family: var(--mono); color: var(--text); text-align: right; font-size: 12px; }
+  .nutri-val.hl { color: var(--accent); }
+
+  .forbid { display: flex; flex-direction: column; gap: 6px; }
+  .forbid div { font-size: 12.5px; color: var(--text-dim); padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .forbid div::before { content: "✕ "; color: var(--danger); margin-right: 4px; }
+
+  .checklist { display: flex; flex-direction: column; gap: 6px; }
+  .checklist label { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: var(--text-dim); line-height: 1.45; padding: 3px 0; cursor: pointer; }
+  .checklist input[type=checkbox] { appearance: none; width: 14px; height: 14px; border: 1px solid var(--border-strong); border-radius: 3px; margin: 1px 0 0; flex-shrink: 0; position: relative; }
+  .checklist input[type=checkbox]:checked { background: var(--accent); border-color: var(--accent); }
+  .checklist input[type=checkbox]:checked::after { content: "✓"; position: absolute; color: var(--bg); font-size: 11px; top: -2px; left: 1px; font-weight: bold; }
+  .checklist input[type=checkbox]:checked + span { text-decoration: line-through; opacity: 0.6; }
+
+  .footer-note { text-align: center; font-family: var(--mono); font-size: 10px; color: var(--text-faint); padding: 24px 0 8px; letter-spacing: 0.1em; }
+  .footer-note .v { color: var(--accent); }
+
+  .err-box { padding: 18px; margin: 18px; background: rgba(232,90,74,0.08); border: 1px solid var(--danger); border-radius: 10px; color: var(--danger); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-title">Max <em>training</em></span>
+      <span class="brand-meta">v5 · 2026</span>
+    </div>
+    <button class="menu-btn" id="menuBtn" aria-label="菜单">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+  </div>
+  <div class="tabs" role="tablist" id="moduleTabs"></div>
+  <div class="versions" role="tablist" id="versionTabs"></div>
+</header>
+
+<main>
+  <section class="plan-summary" id="planSummary"></section>
+  <div class="section-head">
+    <h3>动作 · Exercises</h3>
+    <span class="count" id="exCount"></span>
+  </div>
+  <div class="ex-list" id="exList"></div>
+  <div id="tipsContainer"></div>
+  <div class="footer-note">MAX · TRAINING · <span class="v" id="dataVer">v5</span> · <span id="dateNow"></span></div>
+</main>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-title">参考</div>
+    <button class="drawer-close" id="drawerClose" aria-label="关闭">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+    </button>
+  </div>
+
+  <div class="drawer-section">
+    <h3>一周排程 <span class="badge">4 练</span></h3>
+    <div class="week" id="weekGrid"></div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>⚠️ 上斜方抑制协议</h3>
+    <p style="margin-top:0">背面照显示上斜方过度发达,主动抑制。</p>
+    <p style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;margin:12px 0 6px">完全停止</p>
+    <ul style="margin-top:0">
+      <li>任何 <strong>Shrug 耸肩</strong></li>
+      <li>Upright Row</li>
+      <li>高位 Face Pull(过头位置)</li>
+      <li>大重量 Farmer's Walk</li>
+    </ul>
+    <p style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;margin:12px 0 6px">训练时</p>
+    <ul style="margin-top:0">
+      <li>划船:主动 <strong>肩胛骨下沉</strong></li>
+      <li>肩推:起始位 <strong>肩膀放松下沉</strong></li>
+      <li>Pull Down:先下沉,后拉</li>
+      <li>Lateral Raise:抬到与肩平即可</li>
+      <li>Face Pull:绳索 <strong>胸口高度</strong>,肘部低于肩</li>
+    </ul>
+    <p style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;margin:12px 0 6px">每天放松</p>
+    <ul style="margin-top:0">
+      <li>颈侧拉伸 30s × 2 / 侧</li>
+      <li>上斜方网球放松 1min / 侧</li>
+      <li>门框胸肌拉伸 30s × 2</li>
+    </ul>
+  </div>
+
+  <div class="drawer-section">
+    <h3>髋关节康复</h3>
+    <p style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 6px">早晚各 5 分钟</p>
+    <ul>
+      <li>Couch Stretch 2min / 侧,骨盆主动后倾</li>
+      <li>Pigeon Stretch 1min / 侧</li>
+      <li>Glute Bridge 3×15,顶峰停 2s</li>
+      <li>Clamshell 3×12 / 侧</li>
+      <li>Side-Lying Leg Raise 3×12 / 侧</li>
+    </ul>
+    <p style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;margin:12px 0 6px">每周 2-3 次</p>
+    <ul>
+      <li>Bird Dog 3×10 / 侧</li>
+      <li>Dead Bug 3×10</li>
+      <li>Single-Leg Glute Bridge 3×8 / 腿</li>
+    </ul>
+  </div>
+
+  <div class="drawer-section">
+    <h3>营养速查</h3>
+    <div class="nutri"><span class="nutri-key">热量</span><span class="nutri-val">2400-2700 kcal</span></div>
+    <div class="nutri"><span class="nutri-key">蛋白质 <em style="color:var(--accent);font-style:normal">硬指标</em></span><span class="nutri-val hl">130-140 g</span></div>
+    <div class="nutri"><span class="nutri-key">碳水</span><span class="nutri-val">280-350 g</span></div>
+    <div class="nutri"><span class="nutri-key">脂肪</span><span class="nutri-val">70-90 g</span></div>
+    <div class="nutri"><span class="nutri-key">水</span><span class="nutri-val">2.5-3 L</span></div>
+    <p style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;margin:14px 0 6px">每餐 30-40g 蛋白</p>
+    <ul>
+      <li>早餐:3 蛋 + 200g 希腊酸奶 ≈ 38g</li>
+      <li>午餐:150g 鸡胸/牛肉/三文鱼 ≈ 40g</li>
+      <li>练后:1 勺乳清 + 1 杯牛奶 ≈ 30g</li>
+      <li>晚餐:150g 蛋白源 ≈ 35g</li>
+    </ul>
+    <p style="font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;margin:14px 0 6px">补剂</p>
+    <ul>
+      <li>乳清 1-2 勺 / 天</li>
+      <li><strong>肌酸 5g / 天</strong>(每天吃)</li>
+      <li>维生素 D 2000 IU</li>
+      <li>Omega-3 2g EPA+DHA</li>
+    </ul>
+  </div>
+
+  <div class="drawer-section">
+    <h3>8 周复评清单</h3>
+    <div class="checklist" id="checklist">
+      <label><input type="checkbox"><span>主要动作重量 +5-15%</span></label>
+      <label><input type="checkbox"><span>Incline Press +5kg 以上</span></label>
+      <label><input type="checkbox"><span>RDL 安全做到 4×8-10</span></label>
+      <label><input type="checkbox"><span>胳膊 +0.5-1cm</span></label>
+      <label><input type="checkbox"><span>肩 +1-2cm</span></label>
+      <label><input type="checkbox"><span>大腿 +1-2cm</span></label>
+      <label><input type="checkbox"><span>中背更充实</span></label>
+      <label><input type="checkbox"><span>腘绳上端凸起</span></label>
+      <label><input type="checkbox"><span>上胸撑起</span></label>
+      <label><input type="checkbox"><span>上斜方紧张减轻</span></label>
+      <label><input type="checkbox"><span>髋弹响减少</span></label>
+      <label><input type="checkbox"><span>体重 +1-2kg</span></label>
+      <label><input type="checkbox"><span>蛋白质达标率 ≥ 80%</span></label>
+      <label><input type="checkbox"><span>睡眠达标率 ≥ 80%</span></label>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>已弃用动作</h3>
+    <div class="forbid">
+      <div>Kettlebell / Band Side Bend(腰围风险)</div>
+      <div>Cable / DB Upright Row(肩峰撞击)</div>
+      <div>DB Front Raise(前束被推刷够)</div>
+      <div>Machine Forearm Curl(跟着大动作)</div>
+      <div>任何 Shrug(上斜方抑制)</div>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>资料来源</h3>
+    <p style="font-size:11px;line-height:1.6">
+      训练方案:<strong style="color:var(--text)">workout_plan_v5.md</strong><br>
+      身体基线:<strong style="color:var(--text)">body_baseline_2026-05_v3.md</strong><br>
+      <br>
+      动作示范使用 YouTube 搜索<br>
+      肌肉图:本地 SVG
+    </p>
+  </div>
+</aside>
+
+<!-- Muscle SVG template (cloned via JS) -->
+<template id="bodySvgTpl">
+<svg viewBox="0 0 140 220" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(2,4)">
+    <circle class="head" cx="32" cy="12" r="9"/>
+    <path class="outline" d="M28 21 L36 21 L36 26 L28 26 Z"/>
+    <path class="outline" d="M19 28 Q14 32 16 50 L18 80 Q20 88 22 100 L42 100 Q44 88 46 80 L48 50 Q50 32 45 28 Z"/>
+    <path class="outline" d="M14 32 Q10 40 9 60 L11 78 Q14 79 16 78 L18 60 Q19 45 19 35 Z"/>
+    <path class="outline" d="M50 32 Q54 40 55 60 L53 78 Q50 79 48 78 L46 60 Q45 45 45 35 Z"/>
+    <path class="outline" d="M10 80 Q9 95 9 110 L13 115 L15 110 Q14 95 14 80 Z"/>
+    <path class="outline" d="M54 80 Q55 95 55 110 L51 115 L49 110 Q50 95 50 80 Z"/>
+    <path class="outline" d="M22 102 Q21 130 22 160 L29 160 L31 130 L32 102 Z"/>
+    <path class="outline" d="M32 102 L33 130 L35 160 L42 160 Q43 130 42 102 Z"/>
+    <path class="outline" d="M22 162 Q21 185 23 205 L29 205 L30 185 L29 162 Z"/>
+    <path class="outline" d="M35 162 L34 185 L35 205 L41 205 Q43 185 42 162 Z"/>
+    <path data-muscle="upper-chest" d="M22 30 Q24 33 32 33 Q40 33 42 30 L41 36 Q33 38 23 36 Z"/>
+    <path data-muscle="chest" d="M22 36 Q26 50 32 50 Q38 50 42 36 Q40 47 32 50 Q24 47 22 36 Z"/>
+    <path data-muscle="front-delts" d="M16 30 Q14 36 14 44 Q17 42 19 35 Z"/>
+    <path data-muscle="front-delts" d="M48 30 Q50 36 50 44 Q47 42 45 35 Z"/>
+    <path data-muscle="side-delts" d="M13 33 Q11 42 11 48 Q13 46 14 44 Q14 36 16 30 Z"/>
+    <path data-muscle="side-delts" d="M51 33 Q53 42 53 48 Q51 46 50 44 Q50 36 48 30 Z"/>
+    <path data-muscle="biceps" d="M12 47 Q10 56 11 70 Q14 69 15 60 Q14 53 13 48 Z"/>
+    <path data-muscle="biceps" d="M52 47 Q54 56 53 70 Q50 69 49 60 Q50 53 51 48 Z"/>
+    <path data-muscle="forearms" d="M10 83 Q9 95 10 108 L13 108 L14 95 L13 83 Z"/>
+    <path data-muscle="forearms" d="M54 83 Q55 95 54 108 L51 108 L50 95 L51 83 Z"/>
+    <path data-muscle="abs" d="M27 52 L37 52 L37 88 L27 88 Z"/>
+    <path data-muscle="obliques" d="M22 55 Q21 70 23 85 L27 85 L27 55 Z"/>
+    <path data-muscle="obliques" d="M42 55 Q43 70 41 85 L37 85 L37 55 Z"/>
+    <path data-muscle="quads" d="M22 105 Q21 130 23 155 L31 155 L32 130 L31 105 Z"/>
+    <path data-muscle="quads" d="M33 105 L33 130 L34 155 L42 155 Q43 130 42 105 Z"/>
+    <path data-muscle="calves" d="M23 168 Q23 185 25 200 L28 200 L28 168 Z"/>
+    <path data-muscle="calves" d="M37 168 L37 200 L40 200 Q42 185 41 168 Z"/>
+  </g>
+  <g transform="translate(72,4)">
+    <circle class="head" cx="32" cy="12" r="9"/>
+    <path class="outline" d="M28 21 L36 21 L36 26 L28 26 Z"/>
+    <path class="outline" d="M19 28 Q14 32 16 50 L18 80 Q20 88 22 100 L42 100 Q44 88 46 80 L48 50 Q50 32 45 28 Z"/>
+    <path class="outline" d="M14 32 Q10 40 9 60 L11 78 Q14 79 16 78 L18 60 Q19 45 19 35 Z"/>
+    <path class="outline" d="M50 32 Q54 40 55 60 L53 78 Q50 79 48 78 L46 60 Q45 45 45 35 Z"/>
+    <path class="outline" d="M10 80 Q9 95 9 110 L13 115 L15 110 Q14 95 14 80 Z"/>
+    <path class="outline" d="M54 80 Q55 95 55 110 L51 115 L49 110 Q50 95 50 80 Z"/>
+    <path class="outline" d="M22 102 Q21 130 22 160 L29 160 L31 130 L32 102 Z"/>
+    <path class="outline" d="M32 102 L33 130 L35 160 L42 160 Q43 130 42 102 Z"/>
+    <path class="outline" d="M22 162 Q21 185 23 205 L29 205 L30 185 L29 162 Z"/>
+    <path class="outline" d="M35 162 L34 185 L35 205 L41 205 Q43 185 42 162 Z"/>
+    <path data-muscle="upper-traps" d="M26 26 L38 26 L40 36 Q32 38 24 36 Z"/>
+    <path data-muscle="mid-back" d="M24 38 L40 38 L41 56 L23 56 Z"/>
+    <path data-muscle="rear-delts" d="M16 30 Q12 36 12 46 Q15 44 18 42 Q19 35 19 32 Z"/>
+    <path data-muscle="rear-delts" d="M48 30 Q52 36 52 46 Q49 44 46 42 Q45 35 45 32 Z"/>
+    <path data-muscle="lats" d="M19 50 Q15 58 17 72 L23 70 L23 50 Z"/>
+    <path data-muscle="lats" d="M45 50 Q49 58 47 72 L41 70 L41 50 Z"/>
+    <path data-muscle="lower-lats" d="M17 72 Q19 85 24 92 L23 70 Z"/>
+    <path data-muscle="lower-lats" d="M47 72 Q45 85 40 92 L41 70 Z"/>
+    <path data-muscle="lower-back" d="M25 75 L39 75 L39 95 L25 95 Z"/>
+    <path data-muscle="triceps" d="M12 47 Q10 56 11 70 Q14 69 15 60 Q14 53 13 48 Z"/>
+    <path data-muscle="triceps" d="M52 47 Q54 56 53 70 Q50 69 49 60 Q50 53 51 48 Z"/>
+    <path data-muscle="forearms" d="M10 83 Q9 95 10 108 L13 108 L14 95 L13 83 Z"/>
+    <path data-muscle="forearms" d="M54 83 Q55 95 54 108 L51 108 L50 95 L51 83 Z"/>
+    <path data-muscle="glutes" d="M22 100 Q22 115 30 118 L32 118 L32 100 Z"/>
+    <path data-muscle="glutes" d="M42 100 Q42 115 34 118 L32 118 L32 100 Z"/>
+    <path data-muscle="hamstrings" d="M23 120 L31 120 L31 158 L24 158 Z"/>
+    <path data-muscle="hamstrings" d="M33 120 L41 120 L40 158 L33 158 Z"/>
+    <path data-muscle="calves" d="M23 165 Q23 185 26 200 L29 200 L30 185 L28 165 Z"/>
+    <path data-muscle="calves" d="M34 165 L36 185 L35 200 L38 200 Q41 185 41 165 Z"/>
+  </g>
+  <text class="muscle-fig-label" x="34" y="218">前</text>
+  <text class="muscle-fig-label" x="104" y="218">后</text>
+</svg>
+</template>
+
+<!-- 数据文件 -->
+<script src="data.js"></script>
+
+<!-- 应用逻辑 -->
+<script>
+/* ===========================================
+   渲染逻辑 — 一般不需要改这里
+   修改训练内容请改 data.js
+   =========================================== */
+
+// 数据缺失保护
+if (typeof plans === 'undefined' || typeof ex === 'undefined' || typeof modules === 'undefined') {
+  document.body.innerHTML = '<div class="err-box">数据文件加载失败,请检查 data.js 是否存在,或网络是否可达。</div>';
+  throw new Error('data.js missing');
+}
+
+const state = {
+  module: 'A',
+  version: modules.find(m => m.key === 'A').default,
+  openExercises: new Set(),
+};
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+function renderModuleTabs() {
+  $('#moduleTabs').innerHTML = modules.map(m => `
+    <button class="tab" data-module="${m.key}" role="tab" aria-selected="${state.module === m.key}">
+      <span class="tab-key">${m.key}</span>
+      <span>${m.label}</span>
+    </button>
+  `).join('');
+}
+
+function renderVersionTabs() {
+  const m = modules.find(x => x.key === state.module);
+  $('#versionTabs').innerHTML = m.versions.map(v => {
+    const p = plans[v];
+    const isStar = !!p.star;
+    const splitName = p.name.split('·');
+    const verName = splitName[1] ? splitName[1].trim() : v;
+    return `
+      <button class="version" data-version="${v}" data-star="${isStar}" aria-selected="${state.version === v}">
+        <span class="v-label">${v}</span>
+        <span class="v-name">${verName}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function renderPlan() {
+  const p = plans[state.version];
+  const splitName = p.name.split('·');
+  const moduleName = splitName[0] ? splitName[0].trim() : '';
+  const verName = splitName[1] ? splitName[1].trim() : '';
+  $('#planSummary').innerHTML = `
+    <div class="plan-summary-row">
+      <span class="plan-code">${p.code}${p.star ? ' ★' : ''}</span>
+      <span style="font-size:11px;color:var(--text-faint);letter-spacing:0.05em">${moduleName}</span>
+    </div>
+    <div class="plan-title">${p.target}</div>
+    <div class="plan-subtitle">${verName}</div>
+    <div class="plan-meta">
+      <div>动作 <strong>${p.items.length}</strong></div>
+      <div>时长 <strong>${p.time}</strong></div>
+    </div>
+  `;
+  $('#exCount').textContent = `${p.items.length} 个`;
+}
+
+function youtubeSearchUrl(en) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(en + ' form technique')}`;
+}
+
+function buildMuscleFigure(primary, secondary) {
+  const tpl = $('#bodySvgTpl').content.cloneNode(true);
+  const svg = tpl.querySelector('svg');
+  primary.forEach(m => {
+    svg.querySelectorAll(`[data-muscle="${m}"]`).forEach(el => el.classList.add('primary'));
+  });
+  secondary.forEach(m => {
+    svg.querySelectorAll(`[data-muscle="${m}"]`).forEach(el => {
+      if (!el.classList.contains('primary')) el.classList.add('secondary');
+    });
+  });
+  return svg.outerHTML;
+}
+
+function renderExercises() {
+  const p = plans[state.version];
+  $('#exList').innerHTML = p.items.map((it, idx) => {
+    const e = ex[it.id];
+    if (!e) return `<div class="ex"><div class="ex-head"><span style="color:var(--danger)">缺数据:${it.id}</span></div></div>`;
+    const note = it.note || e.note;
+    const isOpen = state.openExercises.has(idx);
+    return `
+      <article class="ex ${isOpen ? 'open' : ''} ${it.star ? 'starred' : ''}" data-idx="${idx}">
+        <button class="ex-head" data-toggle="${idx}">
+          <span class="ex-num">${String(idx+1).padStart(2,'0')}</span>
+          <div style="text-align:left">
+            <div class="ex-name">${e.name}</div>
+            <div class="ex-name-en">${e.en}</div>
+          </div>
+          <div class="ex-sets"><span class="sets-num">${it.sets}</span><span class="sets-mult">×</span>${it.reps}</div>
+        </button>
+        <div class="ex-body">
+          <div class="ex-row">
+            <div>
+              <div class="ex-note">${note}</div>
+              <div class="ex-tech">
+                <div class="ex-tech-head">主要 / 辅助肌群</div>
+                <div>${e.primary.map(m => `<strong style="color:var(--accent)">${muscleNames[m] || m}</strong>`).join(' · ')}${e.secondary.length ? ' · ' + e.secondary.map(m => muscleNames[m] || m).join(' · ') : ''}</div>
+              </div>
+              <div class="ex-actions">
+                <a class="ex-btn primary" href="${youtubeSearchUrl(e.en)}" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  看示范
+                </a>
+              </div>
+            </div>
+            <div class="muscle-fig">${buildMuscleFigure(e.primary, e.secondary)}</div>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function toggleExercise(idx) {
+  const card = document.querySelector(`.ex[data-idx="${idx}"]`);
+  if (!card) return;
+  if (state.openExercises.has(idx)) {
+    state.openExercises.delete(idx);
+    card.classList.remove('open');
+  } else {
+    state.openExercises.add(idx);
+    card.classList.add('open');
+  }
+}
+
+function renderTips() {
+  const p = plans[state.version];
+  const wrap = $('#tipsContainer');
+  if (!p.tips || !p.tips.length) { wrap.innerHTML = ''; return; }
+  const isStar = !!p.star;
+  wrap.innerHTML = `
+    <div class="tips ${isStar ? 'warn' : ''}">
+      <h4>${isStar ? '★ 专项要点' : '提示'}</h4>
+      <ul>${p.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>
+  `;
+}
+
+function renderWeek() {
+  $('#weekGrid').innerHTML = weekly.map(w => `
+    <span class="week-day">${w.day}</span>
+    <span class="week-name ${w.rest ? 'rest' : ''}">${w.name}</span>
+    <span class="week-ver ${w.rest ? 'dim' : ''}">${w.ver || ''}</span>
+  `).join('');
+}
+
+function render() {
+  renderModuleTabs();
+  renderVersionTabs();
+  renderPlan();
+  renderExercises();
+  renderTips();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setupDrawer() {
+  const drawer = $('#drawer'), overlay = $('#drawerOverlay');
+  const open = () => { drawer.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
+  const close = () => { drawer.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; };
+  $('#menuBtn').addEventListener('click', open);
+  $('#drawerClose').addEventListener('click', close);
+  overlay.addEventListener('click', close);
+}
+
+function setupChecklist() {
+  const KEY = 'max_8wk_checklist';
+  const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
+  $$('#checklist input[type=checkbox]').forEach((cb, i) => {
+    if (saved[i]) cb.checked = true;
+    cb.addEventListener('change', () => {
+      const s = $$('#checklist input[type=checkbox]').map(c => c.checked);
+      localStorage.setItem(KEY, JSON.stringify(s));
+    });
+  });
+}
+
+function setupEvents() {
+  $('#moduleTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    const k = btn.dataset.module;
+    if (state.module === k) return;
+    state.module = k;
+    state.version = modules.find(m => m.key === k).default;
+    state.openExercises.clear();
+    render();
+  });
+  $('#versionTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.version');
+    if (!btn) return;
+    if (state.version === btn.dataset.version) return;
+    state.version = btn.dataset.version;
+    state.openExercises.clear();
+    render();
+  });
+  $('#exList').addEventListener('click', e => {
+    const t = e.target.closest('[data-toggle]');
+    if (!t) return;
+    toggleExercise(+t.dataset.toggle);
+  });
+}
+
+function setDate() {
+  const d = new Date();
+  const z = n => String(n).padStart(2,'0');
+  $('#dateNow').textContent = `${d.getFullYear()}.${z(d.getMonth()+1)}.${z(d.getDate())}`;
+  $('#dataVer').textContent = `v5 · ${DATA_VERSION || '?'}`;
+}
+
+// Init
+render();
+renderWeek();
+setupDrawer();
+setupChecklist();
+setupEvents();
+setDate();
+</script>
+</body>
+</html>
