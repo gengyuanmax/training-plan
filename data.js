@@ -1,12 +1,15 @@
 /* ===========================================
-   Max 训练数据 · v5
+   Max 训练数据 · v6
    ===========================================
    修改方式见 UPDATING.md
-   
+
    修改后请更新 DATA_VERSION 日期,这样能在底部看到生效。
+
+   v6 新增:每个模块的居家版(A-H / B-H / C-H / D-H),
+   弹力绳 + 自重 + 椅子能完成。E.0/E.1 保留为出差全身版。
    =========================================== */
 
-const DATA_VERSION = '2026.05.14';
+const DATA_VERSION = '2026.05.14 v6';
 
 /* ---------- 肌群中文名 ---------- 
    只在新增 SVG 肌群时改。增加肌群需同步改 index.html 里的 SVG。
@@ -79,6 +82,30 @@ const ex = {
   ss_hammer_overhead: { name: 'Superset: 锤举 + 过顶三头', en: 'SS: Hammer Curl + Overhead Rope', primary: ['biceps', 'triceps'], secondary: ['forearms'], note: '3×3 组,无间歇。' },
   ds_cable_curl: { name: 'Drop Set: 绳索弯举力竭', en: 'Drop Set: Cable Curl', primary: ['biceps'], secondary: [], note: '力竭 → 降重 → 力竭 → 降重。一轮足够。' },
 
+  // ===== 居家专用动作(A-H / B-H / C-H / D-H) =====
+  // 拉日居家
+  band_lat_pulldown: { name: '弹力绳高位下拉', en: 'Resistance Band Lat Pull Down', primary: ['lats'], secondary: ['biceps', 'mid-back'], note: '门锚挂在门顶,站姿拉到锁骨。<strong>肩胛先下沉再拉</strong>,不要耸肩。弹力绳越拉越紧,顶峰张力对背阔特别好。' },
+  band_single_arm_row: { name: '弹力绳单侧划船', en: 'Resistance Band Single-Arm Row', primary: ['mid-back', 'lats'], secondary: ['rear-delts', 'biceps'], note: '<strong>胸贴门或椅背</strong>,模拟 chest-supported row,去掉腰代偿。肘部贴近身体,拉到腰侧。' },
+  band_straight_arm_pulldown: { name: '弹力绳直臂下压', en: 'Resistance Band Straight Arm Pull Down', primary: ['lats', 'lower-lats'], secondary: [], note: '门锚高位,胳膊伸直从头顶下拉到大腿前。背阔孤立。' },
+  band_hammer_curl: { name: '弹力绳锤式弯举', en: 'Resistance Band Hammer Curl', primary: ['biceps', 'forearms'], secondary: [], note: '中性握法(拇指朝上),脚踩绳。肱肌补量。' },
+  superman_hold: { name: '超人保持', en: 'Superman Hold', primary: ['lower-back'], secondary: ['glutes'], note: '俯卧,手脚同时抬起保持 30s。替代健身房的 Back Extension。' },
+
+  // 推日居家
+  incline_pushup: { name: '上斜俯卧撑(脚低头高)', en: 'Incline Push-Up · Hands Elevated', primary: ['upper-chest'], secondary: ['front-delts', 'triceps'], note: '<strong>上胸主菜</strong>。手撑椅子,脚在地上。<strong>身体倾斜越大,越练上胸</strong>。力竭后可以换标准俯卧撑继续。' },
+  band_single_lat_raise: { name: '弹力绳单臂侧平举', en: 'Resistance Band Single-Arm Lateral Raise', primary: ['side-delts'], secondary: [], note: '单脚踩绳单手抓,身体侧对锚点。抬到肩平即可,不再往高抬。' },
+
+  // 腿日居家
+  reverse_lunges: { name: '后退弓步', en: 'Reverse Lunges', primary: ['glutes', 'quads'], secondary: ['hamstrings'], note: '往后跨步,前腿屈膝。<strong>对膝盖比前进弓步更友好</strong>。手抱哑铃或一桶水加重。' },
+  bw_squat: { name: '自重深蹲', en: 'Bodyweight Squat', primary: ['quads', 'glutes'], secondary: ['hamstrings'], note: '<strong>下蹲深一点,大腿低于平行</strong>。渐进超负荷:增加次数 / 放慢离心 / 顶峰停留。' },
+  wall_sit: { name: '靠墙静蹲', en: 'Wall Sit', primary: ['quads'], secondary: ['glutes'], note: '靠墙下蹲到大腿平行,保持 45s。等长收缩,<strong>quad 灼烧 = 真正的"紧实"训练</strong>。替代 Leg Extension。' },
+  single_leg_calf_raise: { name: '单腿提踵(楼梯边沿)', en: 'Single-Leg Calf Raise · Stair Edge', primary: ['calves'], secondary: [], note: '前脚掌踩楼梯边,脚跟悬空向下,再蹬起到最高。单腿强度更高。' },
+
+  // 肩+胳膊居家
+  band_reverse_fly: { name: '弹力绳反向飞鸟', en: 'Resistance Band Reverse Fly', primary: ['rear-delts'], secondary: ['mid-back'], note: '双手抓绳两端,从胸前向两侧打开。后束。' },
+  ss_band_curl_pushdown: { name: 'Superset: 弹力绳弯举 + 下压', en: 'SS: Band Curl + Band Pushdown', primary: ['biceps', 'triceps'], secondary: ['forearms'], note: '4/4 组,弯举完接下压,组间 60s 休息。弹力绳挂高位做下压。' },
+  ss_band_hammer_overhead: { name: 'Superset: 弹力绳锤举 + 过顶三头', en: 'SS: Band Hammer Curl + Band Overhead Tri', primary: ['biceps', 'triceps'], secondary: ['forearms'], note: '3/3 组,继续充血,无间歇。' },
+  lying_leg_raise: { name: '仰卧举腿', en: 'Lying Leg Raise', primary: ['abs'], secondary: ['obliques'], note: '没有单杠时的核心替代。控制,不要靠惯性。' },
+
   // ===== 出差 E =====
   pushup: { name: '俯卧撑', en: 'Push-Up', primary: ['chest'], secondary: ['front-delts', 'triceps'], note: '标准位。手指尖朝前。' },
   diamond_pushup: { name: '钻石俯卧撑', en: 'Diamond Push-Up', primary: ['triceps'], secondary: ['chest'], note: '三头主力。手呈钻石形。' },
@@ -142,6 +169,26 @@ const plans = {
     ],
     tips: ['相对 A.0:换 Cable Behind Curl + 加 Hammer Curl(肱肌)'],
   },
+  'A-H': {
+    module: 'A', code: 'A-H', name: '拉日 · 居家版',
+    target: '居家:背 + 二头 + 后束', time: '50-60 min',
+    items: [
+      { id: 'band_lat_pulldown', sets: 4, reps: '12' },
+      { id: 'band_row', sets: 4, reps: '12', star: true, note: '<strong>主菜</strong>。绳子固定在胸口高度,拉到肚脐' },
+      { id: 'band_single_arm_row', sets: 3, reps: '12 / 侧', note: '胸贴椅背模拟 chest-supported row' },
+      { id: 'band_straight_arm_pulldown', sets: 3, reps: '15' },
+      { id: 'band_face_pull', sets: 4, reps: '15' },
+      { id: 'band_curl', sets: 4, reps: '12' },
+      { id: 'band_hammer_curl', sets: 3, reps: '12' },
+      { id: 'superman_hold', sets: 3, reps: '30s', note: '替代 Back Extension' },
+    ],
+    tips: [
+      '装备:弹力绳(中阻 + 重阻,带把手)+ 门锚扣 + 椅子',
+      '热身:Pull Apart 2×15 + 弹力带绕肩 2×10',
+      '弹力绳的"顶峰张力"对背特别好 — 拉到最紧位置阻力最大',
+      '没有 chest-supported row 设备 → 用单侧 row + 胸贴椅背模拟',
+    ],
+  },
   'A.2': {
     module: 'A', code: 'A.2', name: '拉日 · 专项版',
     target: '中背 + 背阔下沿(V 字形)', time: '65-70 min', star: true,
@@ -193,6 +240,25 @@ const plans = {
     ],
     tips: ['相对 B.0:三头加量(过顶 3→4 组 + 新增过顶绳索)','Incline Press 加重是 8 周第一目标'],
   },
+  'B-H': {
+    module: 'B', code: 'B-H', name: '推日 · 居家版',
+    target: '居家:胸 + 肩 + 三头', time: '50-60 min',
+    items: [
+      { id: 'incline_pushup', sets: 4, reps: '10-15', star: true, note: '<strong>上胸主菜</strong>。身体倾斜越大 = 越练上胸' },
+      { id: 'band_press', sets: 4, reps: '10-12', note: '双脚踩绳,推到头顶。不耸肩' },
+      { id: 'band_lat_raise', sets: 5, reps: '15', star: true, note: '<strong>高量必做</strong>,弹力绳顶峰张力对中束完美' },
+      { id: 'band_single_lat_raise', sets: 3, reps: '15 / 侧' },
+      { id: 'pushup', sets: 3, reps: '12-15' },
+      { id: 'diamond_pushup', sets: 4, reps: '8-12', note: '三头主力' },
+      { id: 'band_overhead_tri', sets: 3, reps: '15' },
+    ],
+    tips: [
+      '装备:弹力绳 + 椅子 / 床(俯卧撑用)',
+      '热身:弹力带绕肩 + Push-Up 2×8 激活',
+      'Incline Push-Up 替代 Incline Press:身体越倾斜(脚越低),刺激上胸越多',
+      '没有 Pec Dec → 可加 Band Chest Fly(双手抓两端从侧面合拢)3×15',
+    ],
+  },
   'C.0': {
     module: 'C', code: 'C.0', name: '腿日 · 基础版',
     target: '髋友好维持(髋弹响严重期)', time: '65 min',
@@ -242,6 +308,27 @@ const plans = {
       '加重 → 暂停 RDL,回 C.0',
     ],
   },
+  'C-H': {
+    module: 'C', code: 'C-H', name: '腿日 · 居家版',
+    target: '居家:腿', time: '50-60 min',
+    items: [
+      { id: 'bulgarian_bw', sets: 4, reps: '10 / 腿', star: true, note: '<strong>主菜</strong>。前脚远 = 更多臀腘绳。手抱哑铃或一桶水加重' },
+      { id: 'single_leg_bridge', sets: 4, reps: '12 / 腿', note: '替代 Hip Thrust。顶峰停 2s' },
+      { id: 'rdl', sets: 3, reps: '10', note: '如有哑铃,10kg 起步。<strong>首次 2×8 测试髋反应</strong>(同 v5 安全协议)' },
+      { id: 'reverse_lunges', sets: 3, reps: '10 / 腿' },
+      { id: 'bw_squat', sets: 3, reps: '15-20' },
+      { id: 'wall_sit', sets: 3, reps: '45s', note: '替代 Leg Extension' },
+      { id: 'single_leg_calf_raise', sets: 3, reps: '15 / 腿' },
+    ],
+    tips: [
+      '装备:椅子 / 床 + 弹力绳(可选)+ 哑铃(可选,5-10kg)',
+      '<strong>训练前激活(必做 5 分钟)</strong>:沙发拉伸 2 分钟/侧 + 臀桥 2×15 + 蚌式 2×12/侧',
+      'Single-Leg Glute Bridge 是 Hip Thrust 的最佳家庭替代',
+      'Wall Sit 替代 Leg Extension:等长 45s 后 quad 灼烧',
+      '没有哑铃 → 5L 水桶 ≈ 5kg / 装满书的双肩包 ≈ 5-10kg / 单腿动作本身就够',
+      '自重的渐进超负荷:加次数 / 放慢离心(下放数 3 秒)/ 顶峰停留',
+    ],
+  },
   'D.0': {
     module: 'D', code: 'D.0', name: '肩+胳膊 · 基础版',
     target: '肩+胳膊补量', time: '50-55 min',
@@ -272,6 +359,27 @@ const plans = {
       { id: 'plank', sets: 3, reps: '60s' },
     ],
     tips: ['<strong>48 小时恢复 — 第二天别再练胳膊</strong>','Superset + Drop Set 强度技巧'],
+  },
+  'D-H': {
+    module: 'D', code: 'D-H', name: '肩+胳膊 · 居家版',
+    target: '居家:肩 + 胳膊', time: '45-55 min',
+    items: [
+      { id: 'band_lat_raise', sets: 5, reps: '15-20', star: true, note: '<strong>高量刷中束</strong>,弹力绳顶峰张力对中束完美' },
+      { id: 'band_single_lat_raise', sets: 4, reps: '15 / 侧' },
+      { id: 'band_reverse_fly', sets: 4, reps: '12' },
+      { id: 'band_face_pull', sets: 4, reps: '15' },
+      { id: 'ss_band_curl_pushdown', sets: 4, reps: '12 / 15', note: '60s 休息' },
+      { id: 'ss_band_hammer_overhead', sets: 3, reps: '12 / 15' },
+      { id: 'lying_leg_raise', sets: 3, reps: '10-12', note: '有单杠改 Hanging Leg Raise' },
+      { id: 'plank', sets: 3, reps: '60s' },
+    ],
+    tips: [
+      '装备:弹力绳',
+      '热身:Pull Apart 2×15 + 弹力带绕肩',
+      '弹力绳对孤立动作(侧平举、弯举、下压)特别合适',
+      '没有 Cable Pushdown → 弹力绳挂高位 + 双手向下拉模拟',
+      'D.1 的 Drop Set 在家用弹力绳难做(不能快速降重),跳过即可',
+    ],
   },
   'E.0': {
     module: 'E', code: 'E.0', name: '出差 · 基础版',
@@ -319,10 +427,10 @@ const plans = {
    default: 进入该模块默认打开的版本
 */
 const modules = [
-  { key: 'A', label: '拉日', sub: 'Pull', versions: ['A.0', 'A.1', 'A.2'], default: 'A.2' },
-  { key: 'B', label: '推日', sub: 'Push', versions: ['B.0', 'B.1'], default: 'B.1' },
-  { key: 'C', label: '腿日', sub: 'Legs', versions: ['C.0', 'C.2', 'C.3'], default: 'C.3' },
-  { key: 'D', label: '肩+臂', sub: 'Shldr+Arms', versions: ['D.0', 'D.1'], default: 'D.0' },
+  { key: 'A', label: '拉日', sub: 'Pull', versions: ['A.0', 'A.1', 'A.2', 'A-H'], default: 'A.2' },
+  { key: 'B', label: '推日', sub: 'Push', versions: ['B.0', 'B.1', 'B-H'], default: 'B.1' },
+  { key: 'C', label: '腿日', sub: 'Legs', versions: ['C.0', 'C.2', 'C.3', 'C-H'], default: 'C.3' },
+  { key: 'D', label: '肩+臂', sub: 'Shldr+Arms', versions: ['D.0', 'D.1', 'D-H'], default: 'D.0' },
   { key: 'E', label: '出差', sub: 'Travel', versions: ['E.0', 'E.1'], default: 'E.0' },
 ];
 
