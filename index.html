@@ -516,7 +516,7 @@ function renderExercises() {
     const isOpen = state.openExercises.has(idx);
     return `
       <article class="ex ${isOpen ? 'open' : ''} ${it.star ? 'starred' : ''}" data-idx="${idx}">
-        <div class="ex-head" data-toggle="${idx}" role="button" tabindex="0">
+        <div class="ex-head" data-toggle="${idx}" role="button" tabindex="0" aria-expanded="${isOpen}" aria-controls="ex-body-${idx}">
           <span class="ex-num">${String(idx+1).padStart(2,'0')}</span>
           <div>
             <div class="name-row">
@@ -530,7 +530,7 @@ function renderExercises() {
           </div>
           <div class="ex-sets"><span class="sets-num">${it.sets}</span><span class="sets-mult">×</span>${it.reps}</div>
         </div>
-        <div class="ex-body">
+        <div class="ex-body" id="ex-body-${idx}">
           <div class="ex-row">
             <div>
               <div class="ex-note">${note}</div>
@@ -576,12 +576,15 @@ async function copyToClipboard(text, btn) {
 function toggleExercise(idx) {
   const card = document.querySelector(`.ex[data-idx="${idx}"]`);
   if (!card) return;
+  const header = card.querySelector('.ex-head');
   if (state.openExercises.has(idx)) {
     state.openExercises.delete(idx);
     card.classList.remove('open');
+    if (header) header.setAttribute('aria-expanded', 'false');
   } else {
     state.openExercises.add(idx);
     card.classList.add('open');
+    if (header) header.setAttribute('aria-expanded', 'true');
   }
 }
 
