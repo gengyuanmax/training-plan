@@ -669,6 +669,13 @@ function setupEvents() {
     if (!t) return;
     toggleExercise(+t.dataset.toggle);
   });
+  $('#exList').addEventListener('keydown', e => {
+    const t = e.target.closest('[data-toggle]');
+    if (!t) return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    if (e.key === ' ') e.preventDefault();
+    toggleExercise(+t.dataset.toggle);
+  });
 }
 
 function setDate() {
