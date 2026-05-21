@@ -1,6 +1,6 @@
 # Max Training
 
-个人训练计划的手机网页版。基于 [workout_plan_v5.md](source/workout_plan_v5.md) 和 [body_baseline_2026-05_v3.md](source/body_baseline_2026-05_v3.md) 渲染。
+个人训练计划的手机网页版。基于 [workout_plan_v5.1.md](source/workout_plan_v5.1.md)(健身房 + 出差,当前主版本)+ [workout_plan_v6.md](source/workout_plan_v6.md)(居家版)+ [body_baseline_2026-05_v3.md](source/body_baseline_2026-05_v3.md) 渲染。
 
 ---
 
@@ -14,7 +14,9 @@ max-training/
 ├── UPDATING.md     如何修改数据的详细手册
 ├── .gitignore
 └── source/
-    ├── workout_plan_v5.md          计划源文件 — data.js 从这里生成
+    ├── workout_plan_v5.1.md         当前主计划 (健身房 + 出差,含 E-Push)
+    ├── workout_plan_v6.md           居家版来源 (A-H / B-H / C-H / D-H)
+    ├── workout_plan_v5.md           历史版本
     └── body_baseline_2026-05_v3.md  身体基线
 ```
 
@@ -169,3 +171,8 @@ git push
 ## 版本历史
 
 - **v5**(2026-05):初版 web 化。基于 workout_plan_v5.md
+- **v6**(2026-05):新增所有模块的居家版(A-H / B-H / C-H / D-H)
+- **v5.1**(2026-05-21,当前):推日重排 + 肩袖激活 + E-Push 出差推日专用版
+  - B 模块:External Rotation 开头必做,胸容量补足,去 Lateral Raise 冗余
+  - E 模块:新增 E-Push(对标 B 模块结构),E.0/E.1 热身加肩袖激活
+  - 居家版(A-H/B-H/C-H/D-H)从 v6 保留
