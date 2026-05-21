@@ -1,15 +1,22 @@
 /* ===========================================
-   Max 训练数据 · v6
+   Max 训练数据 · v5.1 + v6 居家版
    ===========================================
    修改方式见 UPDATING.md
 
    修改后请更新 DATA_VERSION 日期,这样能在底部看到生效。
 
-   v6 新增:每个模块的居家版(A-H / B-H / C-H / D-H),
-   弹力绳 + 自重 + 椅子能完成。E.0/E.1 保留为出差全身版。
+   v5.1 更新(2026.05.21):
+   - B 模块(推日)重排:新增肩袖激活 External Rotation 开头必做
+   - B.0 胸容量 7→8 组,去掉冗余的 Cable Single-Arm Lateral Raise
+   - B.1 胸容量 7→11 组,新增 Cable Crossover
+   - 新增 E-Push 出差推日专用版(对标 B 模块结构)
+   - E.0/E.1 热身加入 Band External Rotation 肩袖激活
+   - Lateral Raise 单一变式原则:质量 > 角度堆叠
+
+   v6 保留:每个模块的居家版(A-H / B-H / C-H / D-H)。
    =========================================== */
 
-const DATA_VERSION = '2026.05.14 v6';
+const DATA_VERSION = '2026.05.21 v5.1';
 
 /* ---------- 肌群中文名 ---------- 
    只在新增 SVG 肌群时改。增加肌群需同步改 index.html 里的 SVG。
@@ -52,7 +59,9 @@ const ex = {
   back_ext: { name: '坐姿背伸展', en: 'Seated Back Extension', primary: ['lower-back'], secondary: ['glutes'], note: '下背收尾,轻重量,感受下背启动。' },
 
   // ===== 推日 B =====
+  external_rotation: { name: '肩袖外旋', en: 'External Rotation · Cable or Band', primary: ['rear-delts'], secondary: [], note: '<strong>肩袖激活</strong>。轻阻力(能做 30 次的重量只做 12 次),<strong>肘部夹住体侧</strong>,肩胛下沉,前臂从体前旋到体侧约 90° 弧度,慢速可控。不是练肌肉,是激活神经,保护肩关节。' },
   incline_press: { name: '机械上斜推胸', en: 'Machine Incline Bench Press', primary: ['upper-chest'], secondary: ['front-delts', 'triceps'], note: '<strong>上胸优先 — 你的真正弱点</strong>。重量必须加重。目标 4 周内 +5kg。' },
+  cable_crossover: { name: '高位绳索夹胸', en: 'Cable Crossover · High to Low', primary: ['chest'], secondary: ['upper-chest'], note: '胸第二角度。从高位向下向内夹,顶峰双手交叉过中线。或替换为 Incline Dumbbell Press。' },
   arnold_press: { name: '阿诺德推举', en: 'DB Arnold Press', primary: ['front-delts', 'side-delts'], secondary: ['triceps'], note: '肩推主菜。<strong>起始位肩膀放松下沉</strong>,推起过程不要让肩往耳朵方向走。' },
   machine_lat_raise: { name: '机械侧平举', en: 'Machine Lateral Raise', primary: ['side-delts'], secondary: [], note: '必做。<strong>抬到与肩平就够,别再往高抬</strong> — 再高就是上斜方。' },
   cable_lat_raise: { name: '绳索单臂侧平举', en: 'Cable Single-Arm Lateral Raise', primary: ['side-delts'], secondary: [], note: '中束补量,阻力曲线和机械互补。' },
@@ -119,6 +128,13 @@ const ex = {
   bw_calf_raise: { name: '提踵', en: 'BW Calf Raise', primary: ['calves'], secondary: [], note: '单腿更好。' },
   band_overhead_tri: { name: '弹力带过顶三头', en: 'Band Overhead Tri Extension', primary: ['triceps'], secondary: [], note: '三头长头。脚踩,手臂过顶向下伸展。' },
   diamond_finisher: { name: '钻石俯卧撑收尾', en: 'Diamond Push-Up Finisher', primary: ['triceps'], secondary: ['chest'], note: '2 组力竭,三头泵感收尾。' },
+
+  // ===== 出差推日 E-Push (v5.1 新增) =====
+  band_external_rotation: { name: '弹力绳肩袖外旋', en: 'Resistance Band External Rotation', primary: ['rear-delts'], secondary: [], note: '<strong>肩袖激活,起手必做</strong>。轻阻力,肘贴体侧,肩胛下沉,前臂从体前旋到体侧。出差也别省。' },
+  band_chest_press: { name: '弹力绳推胸(门锚)', en: 'Resistance Band Chest Press', primary: ['chest'], secondary: ['front-delts', 'triceps'], note: '门锚胸口高度,站姿向前推,模拟 Bench Press。补胸容量。' },
+  band_tricep_pushdown: { name: '弹力绳三头下压', en: 'Resistance Band Tricep Pushdown', primary: ['triceps'], secondary: [], note: '门锚高位,双手向下拉,模拟 Cable Pushdown。三头外侧头独立。' },
+  band_pull_apart: { name: '弹力带 Pull Apart', en: 'Resistance Band Pull Apart', primary: ['rear-delts'], secondary: ['mid-back'], note: '后束姿态收尾。双手抓绳两端从胸前向两侧打开。' },
+  diamond_amrap: { name: '钻石俯卧撑(力竭)', en: 'Diamond Push-Up · AMRAP', primary: ['triceps'], secondary: ['chest'], note: '2 组,每组到力竭。三头泵感收尾。' },
 };
 
 /* ---------- 计划版本 ---------- 
@@ -213,32 +229,43 @@ const plans = {
   },
   'B.0': {
     module: 'B', code: 'B.0', name: '推日 · 基础版',
-    target: '维持胸肩三头 · 上胸优先', time: '60-65 min',
+    target: '维持胸肩三头 + 肩袖健康', time: '60-65 min',
     items: [
-      { id: 'incline_press', sets: 4, reps: '8-10', star: true, note: '<strong>上胸优先,你的弱点,重量必须加重</strong>。目标 4 周内 +5kg。' },
-      { id: 'arnold_press', sets: 4, reps: '8-10' },
-      { id: 'machine_lat_raise', sets: 4, reps: '12-15' },
-      { id: 'cable_lat_raise', sets: 3, reps: '15' },
-      { id: 'pec_dec', sets: 3, reps: '12' },
+      { id: 'external_rotation', sets: 2, reps: '12-15', star: true, note: '<strong>开头必做 · 肩袖激活</strong>。轻阻力,肘贴体侧。不练肩袖 = 肩膀总有一天会出问题。' },
+      { id: 'incline_press', sets: 4, reps: '8-10', star: true, note: '<strong>上胸主菜,重量优先</strong>。目标 4 周内 +5kg。' },
+      { id: 'pec_dec', sets: 4, reps: '10-12', note: '<strong>3→4 组</strong>,胸容量补足' },
+      { id: 'arnold_press', sets: 4, reps: '8-10', note: '不耸肩' },
+      { id: 'machine_lat_raise', sets: 4, reps: '12-15', star: true, note: '<strong>唯一中束动作</strong>,质量优先,可加 tempo。抬到与肩平就停' },
       { id: 'rope_pushdown', sets: 4, reps: '12' },
       { id: 'overhead_tri_ext', sets: 3, reps: '10' },
     ],
-    tips: ['不要做任何 Shrug / 耸肩类动作','肩推不要耸肩 — 避免加剧上斜方过度发达'],
+    tips: [
+      '<strong>v5.1 重排</strong>:肩袖激活开头 + 胸优先 + Lateral Raise 单一变式',
+      '<strong>容量</strong>:肩袖 2 | 胸 8 | 肩 8 | 三头 7',
+      '<strong>去掉 Cable Single-Arm Lateral Raise</strong>(与机械侧平举冗余)',
+      '不要做任何 Shrug / 耸肩类动作,肩推起始位肩膀放松下沉',
+    ],
   },
   'B.1': {
     module: 'B', code: 'B.1', name: '推日 · 扩展版',
-    target: '强化三头长头 + 上胸', time: '65-70 min', star: true,
+    target: '强化三头长头 + 胸容量', time: '70-75 min', star: true,
     items: [
-      { id: 'incline_press', sets: 4, reps: '8-10', star: true, note: '<strong>上胸优先,重量必须加重</strong>' },
+      { id: 'external_rotation', sets: 2, reps: '12-15', star: true, note: '<strong>开头必做 · 肩袖激活</strong>' },
+      { id: 'incline_press', sets: 4, reps: '8-10', star: true, note: '<strong>上胸主菜,重量更激进</strong>' },
+      { id: 'pec_dec', sets: 4, reps: '10-12' },
+      { id: 'cable_crossover', sets: 3, reps: '10-12', note: '<strong>新增</strong>,胸第二角度。能量降则砍这 3 组' },
       { id: 'arnold_press', sets: 4, reps: '8-10' },
-      { id: 'machine_lat_raise', sets: 4, reps: '12-15' },
-      { id: 'cable_lat_raise', sets: 3, reps: '15' },
-      { id: 'pec_dec', sets: 3, reps: '12' },
+      { id: 'machine_lat_raise', sets: 4, reps: '12-15', star: true, note: '<strong>唯一中束动作</strong>,4 组高质量' },
       { id: 'rope_pushdown', sets: 4, reps: '12' },
       { id: 'overhead_tri_ext', sets: 4, reps: '10', note: '3→4 组' },
-      { id: 'cable_overhead_rope', sets: 2, reps: '15', note: '新增,泵感收尾' },
+      { id: 'cable_overhead_rope', sets: 2, reps: '15', note: '泵感收尾' },
     ],
-    tips: ['相对 B.0:三头加量(过顶 3→4 组 + 新增过顶绳索)','Incline Press 加重是 8 周第一目标'],
+    tips: [
+      '<strong>v5.1 重排</strong>:胸容量从 7 → 11 组,新增 Cable Crossover',
+      '<strong>容量</strong>:肩袖 2 | 胸 11 | 肩 8 | 三头 10',
+      'Incline Press 加重是 8 周第一目标',
+      '组数升到 29,时长 70-75 min。能量降 → 砍 Cable Crossover',
+    ],
   },
   'B-H': {
     module: 'B', code: 'B-H', name: '推日 · 居家版',
@@ -396,7 +423,11 @@ const plans = {
       { id: 'single_leg_bridge', sets: 3, reps: '12 / 腿' },
       { id: 'bw_calf_raise', sets: 3, reps: '20' },
     ],
-    tips: ['装备:管状弹力绳(中阻+重阻,带把手)+ 门锚扣','收尾:Plank 3×45s + Lying Leg Raise 3×12'],
+    tips: [
+      '装备:管状弹力绳(中阻+重阻,带把手)+ 门锚扣',
+      '<strong>热身加肩袖激活</strong>:Pull Apart 2×15 + 弹力带绕肩 + Band External Rotation 2×12(v5.1 新增)',
+      '收尾:Plank 3×45s + Lying Leg Raise 3×12',
+    ],
   },
   'E.1': {
     module: 'E', code: 'E.1', name: '出差 · 扩展版',
@@ -415,7 +446,33 @@ const plans = {
       { id: 'single_leg_bridge', sets: 3, reps: '12 / 腿' },
       { id: 'bw_calf_raise', sets: 3, reps: '20' },
     ],
-    tips: ['加三头长头 + 钻石收尾'],
+    tips: [
+      '<strong>热身加肩袖激活</strong>:Band External Rotation 2×12(v5.1 新增)',
+      '加三头长头 + 钻石收尾',
+    ],
+  },
+  'E-Push': {
+    module: 'E', code: 'E-Push', name: '出差 · 推日专用',
+    target: '出差拆分推日 · 对标 B 模块', time: '60-70 min',
+    items: [
+      { id: 'band_external_rotation', sets: 2, reps: '12-15 / 侧', star: true, note: '<strong>激活,轻阻力,肘贴体侧</strong>' },
+      { id: 'incline_pushup', sets: 4, reps: '8-12', star: true, note: '<strong>上胸主菜</strong>,越难做越好' },
+      { id: 'band_chest_press', sets: 4, reps: '10-12', note: '<strong>新增</strong>,胸第二动作,补容量' },
+      { id: 'band_press', sets: 4, reps: '8-10', note: '不耸肩' },
+      { id: 'band_lat_raise', sets: 4, reps: '12-15', star: true, note: '<strong>唯一中束动作</strong>,质量优先,不堆叠' },
+      { id: 'band_tricep_pushdown', sets: 4, reps: '12-15', note: '<strong>三头外侧头独立</strong>' },
+      { id: 'band_overhead_tri', sets: 3, reps: '12-15', note: '三头长头独立' },
+      { id: 'diamond_amrap', sets: 2, reps: 'AMRAP', note: '收尾,力竭' },
+      { id: 'band_pull_apart', sets: 3, reps: '15', note: '后束姿态收尾' },
+    ],
+    tips: [
+      '<strong>v5.1 新增</strong>。出差时间长,把推/拉/腿拆开练(代替 E.0 全身)',
+      '<strong>容量</strong>:肩袖 2 | 胸 10 | 肩 8 | 三头独立 7(+ Diamond 2)| 后束 3',
+      '<strong>顺序敏感</strong>:Push-Up 类放在前面(趁有力气练胸),不要排到第 5 位才做',
+      '<strong>External Rotation 永远不要省</strong>:1 组 10 次不算练,2 组 12-15 才有意义',
+      '<strong>没有两个 Lateral Raise</strong>:4 组单一变式做透,冗余 ≠ 训练量',
+      '装备:弹力绳(中阻+重阻)+ 门锚扣 + 椅子(Incline Push-Up 用)',
+    ],
   },
 };
 
@@ -431,7 +488,7 @@ const modules = [
   { key: 'B', label: '推日', sub: 'Push', versions: ['B.0', 'B.1', 'B-H'], default: 'B.1' },
   { key: 'C', label: '腿日', sub: 'Legs', versions: ['C.0', 'C.2', 'C.3', 'C-H'], default: 'C.3' },
   { key: 'D', label: '肩+臂', sub: 'Shldr+Arms', versions: ['D.0', 'D.1', 'D-H'], default: 'D.0' },
-  { key: 'E', label: '出差', sub: 'Travel', versions: ['E.0', 'E.1'], default: 'E.0' },
+  { key: 'E', label: '出差', sub: 'Travel', versions: ['E.0', 'E.1', 'E-Push'], default: 'E.0' },
 ];
 
 /* ---------- 一周排程 ---------- 

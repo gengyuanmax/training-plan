@@ -101,10 +101,16 @@
   .ex-list { display: flex; flex-direction: column; gap: 10px; }
   .ex { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color 0.15s; }
   .ex.open { border-color: var(--border-strong); }
-  .ex-head { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; padding: 14px 14px 14px 16px; gap: 12px; }
+  .ex-head { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; padding: 14px 14px 14px 16px; gap: 12px; width: 100%; text-align: left; cursor: pointer; }
   .ex-num { font-family: var(--mono); font-size: 13px; color: var(--text-faint); font-weight: 500; }
+  .name-row { display: flex; align-items: center; gap: 4px; }
+  .name-row + .name-row { margin-top: 3px; }
   .ex-name { font-size: 15px; font-weight: 500; color: var(--text); line-height: 1.3; }
-  .ex-name-en { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.03em; margin-top: 3px; line-height: 1.3; }
+  .ex-name-en { font-family: var(--mono); font-size: 10.5px; color: var(--text-faint); letter-spacing: 0.03em; line-height: 1.3; }
+  .copy-btn { width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 5px; color: var(--text-faint); flex-shrink: 0; transition: color 0.15s, background 0.15s; }
+  .copy-btn:active { background: var(--surface-2); }
+  .copy-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .copy-btn.copied { color: var(--good); }
   .ex-sets { font-family: var(--mono); font-size: 13px; color: var(--text); border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 8px; min-width: 62px; text-align: center; line-height: 1; font-weight: 500; background: var(--bg); }
   .ex-sets .sets-num { color: var(--accent); }
   .ex-sets .sets-mult { color: var(--text-faint); margin: 0 2px; }
@@ -496,6 +502,11 @@ function buildMuscleFigure(primary, secondary) {
   return svg.outerHTML;
 }
 
+const COPY_ICON_SVG = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const CHECK_ICON_SVG = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 function renderExercises() {
   const p = plans[state.version];
   $('#exList').innerHTML = p.items.map((it, idx) => {
@@ -505,14 +516,20 @@ function renderExercises() {
     const isOpen = state.openExercises.has(idx);
     return `
       <article class="ex ${isOpen ? 'open' : ''} ${it.star ? 'starred' : ''}" data-idx="${idx}">
-        <button class="ex-head" data-toggle="${idx}">
+        <div class="ex-head" data-toggle="${idx}" role="button" tabindex="0">
           <span class="ex-num">${String(idx+1).padStart(2,'0')}</span>
-          <div style="text-align:left">
-            <div class="ex-name">${e.name}</div>
-            <div class="ex-name-en">${e.en}</div>
+          <div>
+            <div class="name-row">
+              <div class="ex-name">${e.name}</div>
+              <button class="copy-btn" data-copy="${escAttr(e.name)}" aria-label="复制中文名">${COPY_ICON_SVG}</button>
+            </div>
+            <div class="name-row">
+              <div class="ex-name-en">${e.en}</div>
+              <button class="copy-btn" data-copy="${escAttr(e.en)}" aria-label="复制英文名">${COPY_ICON_SVG}</button>
+            </div>
           </div>
           <div class="ex-sets"><span class="sets-num">${it.sets}</span><span class="sets-mult">×</span>${it.reps}</div>
-        </button>
+        </div>
         <div class="ex-body">
           <div class="ex-row">
             <div>
@@ -534,6 +551,26 @@ function renderExercises() {
       </article>
     `;
   }).join('');
+}
+
+async function copyToClipboard(text, btn) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    btn.classList.add('copied');
+    btn.innerHTML = CHECK_ICON_SVG;
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = COPY_ICON_SVG; }, 1200);
+  } catch (err) {
+    btn.style.color = 'var(--danger)';
+    setTimeout(() => { btn.style.color = ''; }, 1200);
+  }
 }
 
 function toggleExercise(idx) {
@@ -619,6 +656,12 @@ function setupEvents() {
     render();
   });
   $('#exList').addEventListener('click', e => {
+    const cb = e.target.closest('.copy-btn');
+    if (cb) {
+      e.stopPropagation();
+      copyToClipboard(cb.dataset.copy, cb);
+      return;
+    }
     const t = e.target.closest('[data-toggle]');
     if (!t) return;
     toggleExercise(+t.dataset.toggle);
